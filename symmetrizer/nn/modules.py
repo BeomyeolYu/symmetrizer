@@ -58,19 +58,19 @@ class BasisLinear(BasisLayer):
     """
     Group-equivariant linear layer
     """
-    def __init__(self, channels_in, channels_out, group, bias=True,
-                 n_samples=4096, basis="equivariant", gain_type="xavier",
-                 bias_init=False):
+    def __init__(self, channels_in, channels_out, group, \
+                 bias=True, n_samples=4096, \
+                 basis="equivariant", gain_type="xavier", bias_init=False):
         """
         """
         super().__init__()
 
         self.group = group
         self.space = basis
-        self.repr_size_in = group.repr_size_in
-        self.repr_size_out = group.repr_size_out
-        self.channels_in = channels_in
-        self.channels_out = channels_out
+        self.repr_size_in  = group.repr_size_in  # 4
+        self.repr_size_out = group.repr_size_out # 2
+        self.channels_in  = channels_in  # 1
+        self.channels_out = channels_out # 1
 
         ### Getting Basis ###
         size = (n_samples, self.repr_size_out, self.repr_size_in)

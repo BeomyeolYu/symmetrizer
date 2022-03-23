@@ -31,9 +31,9 @@ class MatrixRepresentation(Group):
     def __init__(self, input_matrices, output_matrices):
         """
         """
-        self.repr_size_in = input_matrices[0].shape[1]
-        self.repr_size_out = output_matrices[0].shape[1]
-        self._input_matrices = input_matrices
+        self.repr_size_in  = input_matrices[0].shape[1]  # 4 (x, theta, x_dot, theta_dot)
+        self.repr_size_out = output_matrices[0].shape[1] # 2 (Left, Right)
+        self._input_matrices  = input_matrices
         self._output_matrices = output_matrices
 
         self.parameters = range(len(input_matrices))
@@ -41,7 +41,7 @@ class MatrixRepresentation(Group):
     def _input_transformation(self, weights, params):
         """
         Input transformation comes from the input group
-        W F_g z
+        W @ L_g(=F_g?) @ z
         """
         weights = np.matmul(weights, self._input_matrices[params])
         return weights
@@ -49,12 +49,12 @@ class MatrixRepresentation(Group):
     def _output_transformation(self, weights, params):
         """
         Output transformation from the output group
-        P_g W z
+        K_g(=P_g?) @ W @ z
         """
         weights = np.matmul(self._output_matrices[params], weights)
         return weights
 
-
+'''
 class P4(Group):
     """
     Group of 90 degree rotations
@@ -171,4 +171,4 @@ class P4toInvariant(Group):
         permute = self.out_permutations[flip]
         weights = np.matmul(permute, weights)
         return weights
-
+'''

@@ -17,7 +17,7 @@ def symmetrize(W, group):
     """
     Create equivariant weight matrix
     """
-    Wsym = 0
+    Wsym = 0 # Weights_symmetric
     for parameter in group.parameters:
         input_trans = group._input_transformation(W, parameter)
         Wsym += group._output_transformation(input_trans, parameter)
@@ -43,8 +43,8 @@ def get_basis(size, group, new_size, space="equivariant"):
 
     if space=="nullspace":
         # If nullspace, remove the first r=rank vectors
-        rnk = vh.shape[0] - rank
-        vh = vh[rank:]
+        rnk  = vh.shape[0] - rank
+        vh   = vh[rank:]
         rank = rnk
 
     indices = [-1] + new_size

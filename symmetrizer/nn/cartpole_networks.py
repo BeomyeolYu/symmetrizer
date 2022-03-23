@@ -32,18 +32,17 @@ class SingleBasisCartpoleLayer(torch.nn.Module):
     """
     Single layer for cartpole symmetries
     """
-    def __init__(self, input_size, output_size, basis="equivariant",
-                 gain_type="xavier", **kwargs):
+    def __init__(self, input_size, output_size, \
+                 basis="equivariant", gain_type="xavier", **kwargs):
         super().__init__()
-        in_group = get_cartpole_state_group_representations()
-        out_group = get_cartpole_action_group_representations()
+
+        in_group  = get_cartpole_state_group_representations()  # L_g
+        out_group = get_cartpole_action_group_representations() # K_g
 
         repr_in = MatrixRepresentation(in_group, out_group)
 
-
-        self.fc1 = BasisLinear(input_size, output_size, group=repr_in,
-                               basis=basis, gain_type=gain_type,
-                               bias_init=False)
+        self.fc1 = BasisLinear(input_size, output_size, group=repr_in, \
+                               basis=basis, gain_type=gain_type, bias_init=False)
 
     def forward(self, state):
         """

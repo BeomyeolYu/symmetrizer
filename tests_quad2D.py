@@ -1,21 +1,64 @@
 import numpy as np
 import gym
+import gym_quad
 
 import torch
 import torch.nn.functional as F
 
 from symmetrizer.ops import *
-from symmetrizer.nn.cartpole_networks import BasisCartpoleNetworkWrapper, \
-    BasisCartpoleLayer, SingleBasisCartpoleLayer
+from symmetrizer.nn.cartpole_networks \
+    import BasisCartpoleNetworkWrapper, BasisCartpoleLayer, SingleBasisCartpoleLayer
 from symmetrizer.groups.ops import closed_group
 
+
+def test_group():
+    """
+    Test if the group is closed
+    """
+    # State group
+    group_repr = get_cartpole_state_group_representations()
+    is_closed  = closed_group(group_repr.representations)
+    assert(is_closed)
+
+    # Action group
+    group_repr = get_cartpole_action_group_representations()
+    is_closed  = closed_group(group_repr.representations)
+    assert(is_closed)
+
+    return True
+
+
+def test_single_layer():
+    """
+    Test if a single CartPole layer is equivariant
+    """
+    network = SingleBasisCartpoleLayer(1, 1) # (input_size, output_size)
+
+    representations = get_cartpole_state_group_representations()
+    out_group       = get_cartpole_action_group_representations()
+
+    p_m2 = representations[1].detach().cpu().numpy()
+
+    env = gym.make("Quad2D-v0")
+    x = env.reset()
+
+    t_x = torch.Tensor(x).unsqueeze(0)
+    t_p_x1 = torch.Tensor(np.matmul(p_m2, x)).unsqueeze(0)
+
+    out_x = network(t_x)
+    out_p_x1 = network(t_p_x1)
+
+    out_tpx = [out_x, out_p_x1]
+
+    assert_permutations(out_group, out_tpx)
+    return True
 
 
 def test_prebuilt_policy():
     """
     Test if the CartPole policy network is equivariant
     """
-    env = gym.make("CartPole-v1")
+    env = gym.make("Quad2D-v0")
     x = env.reset()
 
     network = BasisCartpoleNetworkWrapper(1, [64, 1])
@@ -48,7 +91,7 @@ def test_value_network():
 
     p_m2 = representations[1].detach().cpu().numpy()
 
-    env = gym.make("CartPole-v1")
+    env = gym.make("Quad2D-v0")
     x = env.reset()
 
     t_x = torch.Tensor(x).unsqueeze(0)
@@ -60,46 +103,6 @@ def test_value_network():
     out_tpx = [out_x, out_p_x1]
 
     assert_similar(out_tpx)
-    return True
-
-
-
-def test_group():
-    """
-    Test if the group is closed
-    """
-    group_repr = get_cartpole_state_group_representations()
-    is_closed = closed_group(group_repr.representations)
-    assert(is_closed)
-    group_repr = get_cartpole_action_group_representations()
-    is_closed = closed_group(group_repr.representations)
-    assert(is_closed)
-    return True
-
-
-def test_single_layer():
-    """
-    Test if a single CartPole layer is equivariant
-    """
-    network = SingleBasisCartpoleLayer(1, 1)
-
-    representations = get_cartpole_state_group_representations()
-    out_group = get_cartpole_action_group_representations()
-
-    p_m2 = representations[1].detach().cpu().numpy()
-
-    env = gym.make("CartPole-v1")
-    x = env.reset()
-
-    t_x = torch.Tensor(x).unsqueeze(0)
-    t_p_x1 = torch.Tensor(np.matmul(p_m2, x)).unsqueeze(0)
-
-    out_x = network(t_x)
-    out_p_x1 = network(t_p_x1)
-
-    out_tpx = [out_x, out_p_x1]
-
-    assert_permutations(out_group, out_tpx)
     return True
 
 
